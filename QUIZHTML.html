@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: rgb(61, 61, 61);
+      color: white;
+      background-image: url(fundot.jpg);
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    #quiz-container {
+      display: none;
+    }
+    .correct {
+      background-color: green;
+      color: white;
+    }
+    .wrong {
+      background-color: red;
+      color: white;
+    }
+    #progress {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    #question-image {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    #options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      justify-items: center;
+    }
+    #options button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 15px;
+      border-color: blue;
+
+    }
+
+    #options button:hover {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 15px;
+      border-color: blue;
+      background-color: lightblue;
+
+
+    }
+
+
+    #timer {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+    #timer img {
+      width: 100px;
+      height: 100px;
+    }
+    img {
+      width: 500px;
+      height: 500px;
+    }
+
+    #homepage button {
+      margin-top: 200px;
+      width: 480px;
+      height: 50px;
+      padding: 10px;
+      background-color: gray;
+      border-color: lightgreen;
+      border-radius: 15px;
+      color: rgba(255, 255, 255, 0.938);
+      font-size: 25px;
+      
+    }
+
+    #homepage button:hover {
+        width: 550px;
+        height: 80px;
+        transition: 150ms;
+        font-size: 35px;
+        color: lightgreen;
+    }
+
+    #homepage #timerqbutton button {
+        border-color: red;
+        margin-top: 20px;
+        
+    }
+
+    #homepage #timerqbutton button:hover {
+        color: lightcoral;
+    }
+
+    #homepage img {
+        height: 100px;
+        margin-top: 100px;
+        margin-left: 200px;
+        position: relative;
+    }
+
+    #pbutton button{
+      border-radius: 15px;
+      border-color: blue;
+      background-color: gray;
+      color: white;
+      height: 40px;
+      width: 150px;
+
+    }
+
+    #pbutton button:hover{
+      border-radius: 15px;
+      border-color: blue;
+      background-color: gray;
+      color: white;
+      height: 40px;
+      width: 150px;
+      background-color: lightblue;
+      color: black;
+
+
+    }
+
+    #rbutton button{
+      border-radius: 15px;
+      border-color: blue;
+      background-color: gray;
+      color: white;
+      height: 30px;
+      width: 350px;
+      margin-top: 250px;
+      margin-left: 420px;
+      position: fixed;
+    }
+
+    #rbutton button:hover{
+      border-radius: 15px;
+      border-color: blue;
+      background-color: gray;
+      color: white;
+      height: 30px;
+      width: 350px;
+      background-color: lightblue;
+      color: black;
+
+
+    }
+
+
+
+  </style>
+</head>
+<body>
+  <div id="homepage">
+    <h1>QUIZ PW</h1>
+    <button onclick="startQuiz()"><strong>Iniciar</strong></button>
+    <div id="timerqbutton">
+    <button onclick="startTimedQuiz()"><strong>Iniciar Quiz com Timer</strong></button>
+    </div>
+  </div>
+  <div id="quiz-container">
+    <div id="progress">Questão <span id="current-question">1</span>/<span id="total-questions">0</span></div>
+    <img id="question-image" src="" alt="Imagem da pergunta">
+    <h2 id="question">Pergunta</h2>
+    <div id="options">
+      <button onclick="checkAnswer(0)"></button>
+      <button onclick="checkAnswer(1)"></button>
+      <button onclick="checkAnswer(2)"></button>
+      <button onclick="checkAnswer(3)"></button>
+    </div>
+    <p id="result"></p>
+    <div id="timer" style="display: none;">
+      <img src="timer1.png" alt="Timer">
+    </div>
+    <div id="pbutton">
+    <button id="next-btn" style="display: none;" onclick="nextQuestion()">Próxima Pergunta</button></div>
+    <button id="finish-btn" style="display: none;" onclick="showResultPage()">Finalizar o Quiz</button>
+  </div>
+  <p id="score" style="display: none;"></p>
+  <div id="rbutton">
+  <button id="restart-btn" style="display: none;" onclick="restartQuiz()">Reiniciar Quiz</button></div>
+  <script>
+    var currentQuestion = 0;
+    var correctAnswers = 0;
+    var timerInterval;
+    var timerImages = ['timer1.png', 'timer2.png', 'timer3.png', 'timer4.png', 'timer5.png', 'timer6.png'];
+    var questions = [
+      {
+        question: "1. Qual é a diferença entre transporte passivo e transporte ativo através da membrana celular?",
+        options: ["A) Transporte passivo requer energia, enquanto o transporte ativo não.", "B) Transporte passivo move substâncias contra o gradiente de concentração.", "C) Transporte ativo requer energia, enquanto o transporte passivo não.", "D) Transporte ativo move substâncias a favor do gradiente de concentração."],
+        correctAnswer: 2,
+        imageUrl: "Imagem1.jpg"
+      },
+      {
+        question: "2. Como as proteínas de canal e as proteínas transportadoras facilitam o transporte de substâncias pela membrana?",
+        options: ["A) Proteínas de canal abrem vias passivas para substâncias, enquanto proteínas transportadoras realizam transporte ativo.", "B) Proteínas de canal realizam transporte ativo, enquanto proteínas transportadoras facilitam a difusão simples.", "C) Proteínas de canal formam poros que permitem a passagem de substâncias específicas, enquanto proteínas transportadoras mudam de forma para mover substâncias.", "D) Ambas as proteínas de canal e as proteínas transportadoras utilizam ATP para mover substâncias pela membrana."],
+        correctAnswer: 2,
+        imageUrl: "Imagem2.jpg"
+      },
+      {
+        question: "3. O que é difusão facilitada e como ela difere da difusão simples?",
+        options: ["A) Difusão facilitada envolve proteínas de transporte, enquanto a difusão simples não.", "B) Difusão facilitada requer energia, enquanto a difusão simples não.", "C) Difusão facilitada move substâncias contra o gradiente de concentração.", "D) Difusão simples move substâncias através de proteínas de canal."],
+        correctAnswer: 0,
+        imageUrl: "Imagem3.jpg"
+      },
+      {
+        question: "4. Como a bomba de sódio e potássio (Na+/K+ ATPase) funciona no transporte ativo através da membrana celular?",
+        options: ["A) Move sódio para dentro da célula e potássio para fora.", "B) Move sódio para fora da célula e potássio para dentro, utilizando ATP.", "C) Utiliza gradiente de concentração para mover íons sem energia.", "D) Transporta ambos os íons a favor de seus gradientes de concentração."],
+        correctAnswer: 1,
+        imageUrl: "Imagem4.jpg"
+      },
+      {
+        question: "5. O que é endocitose e exocitose, e como esses processos contribuem para o transporte de grandes moléculas através da membrana?",
+        options: ["A) Endocitose expulsa moléculas da célula, enquanto exocitose as traz para dentro.", "B) Endocitose é um tipo de transporte passivo, enquanto exocitose é ativo.", "C) Endocitose envolve a ingestão de grandes moléculas pela membrana, enquanto exocitose envolve a liberação de grandes moléculas.", "D) Ambos os processos utilizam proteínas de canal para mover moléculas grandes."],
+        correctAnswer: 2,
+        imageUrl: "Imagem5.png"
+      },
+      {
+        question: "6. Como o gradiente de concentração influencia o movimento de substâncias durante a osmose?",
+        options: ["A) Substâncias se movem contra o gradiente de concentração durante a osmose.", "B) Substâncias se movem de áreas de baixa concentração para áreas de alta concentração.", "C) A água se move de áreas de alta concentração de soluto para áreas de baixa concentração de soluto.", "D) A água se move de áreas de baixa concentração de soluto para áreas de alta concentração de soluto."],
+        correctAnswer: 3,
+        imageUrl: "Imagem6.jpg"
+      }
+    ];
+
+    function startQuiz() {
+      document.getElementById('homepage').style.display = 'none';
+      document.getElementById('quiz-container').style.display = 'block';
+      document.getElementById('total-questions').textContent = questions.length;
+      showQuestion();
+    }
+
+    function startTimedQuiz() {
+      document.getElementById('homepage').style.display = 'none';
+      document.getElementById('quiz-container').style.display = 'block';    
+      document.getElementById('total-questions').textContent = questions.length;
+      document.getElementById('timer').style.display = 'block';
+      startTimer();
+      showQuestion();
+    }
+
+    function startTimer() {
+      var timerElement = document.getElementById('timer').getElementsByTagName('img')[0];
+      var timerIndex = 0;
+      timerElement.src = timerImages[timerIndex];
+      timerInterval = setInterval(function() {
+        timerIndex++;
+        if (timerIndex < timerImages.length) {
+          timerElement.src = timerImages[timerIndex];
+        } else {
+          clearInterval(timerInterval);
+          document.getElementById('finish-btn').style.display = 'block';
+          finishQuiz(true);
+        }
+      }, 10000);
+    }
+
+    function showQuestion() {
+      var questionObj = questions[currentQuestion];
+      document.getElementById('question').textContent = questionObj.question;
+      document.getElementById('question-image').src = questionObj.imageUrl;
+      var options = document.getElementById('options').getElementsByTagName('button');
+      for (var i = 0; i < options.length; i++) {
+        options[i].textContent = questionObj.options[i];
+        options[i].classList.remove('correct', 'wrong');
+        options[i].disabled = false;
+      }
+      document.getElementById('current-question').textContent = currentQuestion + 1;
+    }
+
+    function checkAnswer(selectedOption) {
+      var questionObj = questions[currentQuestion];
+      var resultText = document.getElementById('result');
+      var nextBtn = document.getElementById('next-btn');
+      var options = document.getElementById('options').getElementsByTagName('button');
+      for (var i = 0; i < options.length; i++) {
+        options[i].disabled = true;
+      }
+      if (selectedOption === questionObj.correctAnswer) {
+        resultText.textContent = "Resposta Correta!";
+        correctAnswers++;
+        options[questionObj.correctAnswer].classList.add('correct');
+      } else {
+        resultText.textContent = "Resposta Incorreta.";
+        options[questionObj.correctAnswer].classList.add('correct');
+        options[selectedOption].classList.add('wrong');
+      }
+      nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+        document.getElementById('result').textContent = "";
+        document.getElementById('next-btn').style.display = 'none';
+      } else {
+        finishQuiz(false);
+      }
+    }
+
+    function finishQuiz(timeout = false) {
+      if (timeout) {
+        for (var i = currentQuestion; i < questions.length; i++) {
+          checkAnswer(-1);
+        }
+      }
+      clearInterval(timerInterval);
+      showScore();
+      document.getElementById('quiz-container').style.display = 'none';
+      document.getElementById('timer').style.display = 'none';
+      document.getElementById('finish-btn').style.display = 'block';
+      document.getElementById('restart-btn').style.display = 'block';
+    }
+
+    function showScore() {
+      var scoreText = document.getElementById('score');
+      scoreText.style.display = 'block';
+      scoreText.textContent = "Você acertou " + correctAnswers + " de " + questions.length + " perguntas.";
+      document.getElementById('finish-btn').style.display = 'none';
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      correctAnswers = 0;
+      document.getElementById('homepage').style.display = 'block';
+      document.getElementById('quiz-container').style.display = 'none';
+      document.getElementById('score').style.display = 'none';
+      document.getElementById('restart-btn').style.display = 'none';
+      document.getElementById('finish-btn').style.display = 'none';
+    }
+  </script>
+</body>
+</html>                                                                                                                                              
